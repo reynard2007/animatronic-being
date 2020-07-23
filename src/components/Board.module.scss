@@ -1,0 +1,31 @@
+$square-dimension: 100px;
+
+.board {
+  position: relative;
+  height: 5 * $square-dimension;
+  width: 5 * $square-dimension;
+}
+
+.square {
+  width: $square-dimension;
+  height: $square-dimension;
+
+  &:nth-child(even) {
+    background-color: #ecf0f1;
+  }
+
+  &:nth-child(odd) {
+    background-color: #bdc3c7;
+  }
+
+  @for $i from 1 through 25 {
+    $remainder: ($i - 1) % 5;
+    $factor: floor(($i - 1) / 5);
+
+    &:nth-child(#{$i}) {
+      position: absolute;
+      top: #{$factor * $square-dimension};
+      left: #{$remainder * $square-dimension};
+    }
+  }
+}

@@ -1,0 +1,12 @@
+.wrapper {
+  padding: 10px;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 10;
+  transition: 500ms ease-out transform;
+}
+
+.robot {
+  height: 80px;
+}
