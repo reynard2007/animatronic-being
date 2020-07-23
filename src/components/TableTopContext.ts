@@ -7,12 +7,14 @@ export interface TableTopContextValue {
   position: Nullable<Coordinate>;
   rotation: Nullable<number>;
   runCommand(command: string): void;
+  restrictedCount: number;
 }
 
 const initialTableTopContextValue = {
   runCommand: () => {},
   position: null,
   rotation: null,
+  restrictedCount: 0,
 };
 
 const TableTopContext = createContext<TableTopContextValue>(

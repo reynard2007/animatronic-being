@@ -26,6 +26,8 @@ const TableTop = () => {
   const [reportedValue, setReportedValue] = useState('');
   const [reportVisible, setReportVisible] = useState(false);
   const [rotation, setRotation] = useState(0);
+  // Using numeric values here to allow consecutive shakes
+  const [restrictedCount, setRestrictedCount] = useState(0);
 
   const placeRobot = useCallback((command: string) => {
     const directionMatch = command.match(/(NORTH)|(EAST)|(WEST)|(SOUTH)$/);
@@ -67,28 +69,21 @@ const TableTop = () => {
 
     const { x, y } = position;
 
-    switch (direction) {
-      case 'NORTH':
-        if (y < 4) {
-          setPosition({ x, y: y + 1 });
-        }
+    switch (true) {
+      case direction === 'NORTH' && y < 4:
+        setPosition({ x, y: y + 1 });
         break;
-      case 'EAST':
-        if (x < 4) {
-          setPosition({ x: x + 1, y });
-        }
+      case direction === 'EAST' && x < 4:
+        setPosition({ x: x + 1, y });
         break;
-      case 'WEST':
-        if (x > 0) {
-          setPosition({ x: x - 1, y });
-        }
+      case direction === 'WEST' && x > 0:
+        setPosition({ x: x - 1, y });
         break;
-      case 'SOUTH':
-        if (y > 0) {
-          setPosition({ x, y: y - 1 });
-        }
+      case direction === 'SOUTH' && y > 0:
+        setPosition({ x, y: y - 1 });
         break;
       default:
+        setRestrictedCount(val => val + 1);
     }
   }, [direction, position, rotation]);
 
@@ -127,7 +122,9 @@ const TableTop = () => {
   );
 
   return (
-    <TableTopContext.Provider value={{ rotation, position, runCommand }}>
+    <TableTopContext.Provider
+      value={{ rotation, position, runCommand, restrictedCount }}
+    >
       <div className={styles['layout-wrapper']}>
         <div className={styles['board-wrapper']}>
           <div className={styles.centerer}>

@@ -1,12 +1,25 @@
-import React, { FC, useContext } from 'react';
+import React, { FC, useContext, useState, useEffect, useCallback } from 'react';
+import classnames from 'classnames';
+import { isNull } from 'util';
+
+import TableTopContext from '../TableTopContext';
 
 import { ReactComponent as RobotLogo } from './robot.svg';
 import styles from './Robot.module.scss';
-import TableTopContext from '../TableTopContext';
-import { isNull } from 'util';
 
 const Robot: FC = () => {
-  const { rotation, position } = useContext(TableTopContext);
+  const { rotation, position, restrictedCount } = useContext(TableTopContext);
+  const [shake, setShake] = useState(false);
+
+  useEffect(() => {
+    if (restrictedCount) {
+      setShake(true);
+    }
+  }, [restrictedCount]);
+
+  const handleAnimationEnd = useCallback(() => {
+    setShake(false);
+  }, []);
 
   if (isNull(rotation) || !position) {
     return null;
@@ -21,7 +34,14 @@ const Robot: FC = () => {
         }px) rotate(${rotation}deg)`,
       }}
     >
-      <RobotLogo className={styles.robot} role="img" aria-label="Toy robot" />
+      <RobotLogo
+        className={classnames(styles.robot, {
+          [styles['head-shake']]: shake,
+        })}
+        onAnimationEnd={handleAnimationEnd}
+        role="img"
+        aria-label="Toy robot"
+      />
     </div>
   );
 };
