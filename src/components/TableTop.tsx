@@ -1,14 +1,16 @@
 import React, { useCallback, useState, useMemo } from 'react';
 import classnames from 'classnames';
+import { isNull } from 'util';
+
+import Direction from '../models/Direction';
+import Nullable from '../models/Nullable';
+
 import Board from './Board';
 import Robot from './robot/Robot';
 import CommandInput from './CommandInput';
-import TableTopContext, { ITableTopContext } from './TableTopContext';
-
 import styles from './TableTop.module.scss';
-import Direction from '../models/Direction';
 import { placementRegex } from './constants';
-import { isNull } from 'util';
+import TableTopContext, { TableTopContextValue } from './TableTopContext';
 
 const directionRotationMap: Record<Direction, number> = {
   NORTH: 180,
@@ -18,7 +20,9 @@ const directionRotationMap: Record<Direction, number> = {
 };
 
 const TableTop = () => {
-  const [position, setPosition] = useState<ITableTopContext['position']>(null);
+  const [position, setPosition] = useState<TableTopContextValue['position']>(
+    null
+  );
   const [reportedValue, setReportedValue] = useState('');
   const [reportVisible, setReportVisible] = useState(false);
   const [rotation, setRotation] = useState(0);
@@ -27,7 +31,7 @@ const TableTop = () => {
     const directionMatch = command.match(/(NORTH)|(EAST)|(WEST)|(SOUTH)$/);
     const positionMatch = command.match(/[0-4],[0-4]/);
 
-    let coordinate: ITableTopContext['position'] = null;
+    let coordinate: TableTopContextValue['position'] = null;
     if (directionMatch && positionMatch) {
       const [x, y] = positionMatch[0].split(',');
       coordinate = { x: parseInt(x), y: parseInt(y) };
@@ -37,7 +41,7 @@ const TableTop = () => {
     }
   }, []);
 
-  const direction = useMemo<Direction>(() => {
+  const direction = useMemo<Nullable<Direction>>(() => {
     const radians = (rotation * Math.PI) / 180;
     const calculatedX = Math.round(Math.cos(radians));
     const calculatedY = Math.round(Math.sin(radians));
@@ -52,13 +56,12 @@ const TableTop = () => {
       case calculatedX === 0 && calculatedY === 1:
         return 'WEST';
       default:
-        console.log(calculatedX, calculatedY, 'No match found');
-        return 'SOUTH';
+        return null;
     }
   }, [rotation]);
 
   const moveRobot = useCallback(() => {
-    if (!position || isNull(rotation)) {
+    if (!position || isNull(rotation) || isNull(direction)) {
       return;
     }
 

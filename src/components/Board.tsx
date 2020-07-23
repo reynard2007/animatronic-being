@@ -9,9 +9,9 @@ const Board = () => {
   );
 
   return (
-    <div className={styles.board}>
+    <div className={styles.board} role="img">
       {boardKeys.map(id => (
-        <div className={styles.square} key={id} />
+        <div className={styles.square} key={id} data-testid="square" />
       ))}
     </div>
   );

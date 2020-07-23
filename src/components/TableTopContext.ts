@@ -3,7 +3,7 @@ import { createContext } from 'react';
 import Nullable from '../models/Nullable';
 import Coordinate from '../models/Coordinate';
 
-export interface ITableTopContext {
+export interface TableTopContextValue {
   position: Nullable<Coordinate>;
   rotation: Nullable<number>;
   runCommand(command: string): void;
@@ -15,7 +15,7 @@ const initialTableTopContextValue = {
   rotation: null,
 };
 
-const TableTopContext = createContext<ITableTopContext>(
+const TableTopContext = createContext<TableTopContextValue>(
   initialTableTopContextValue
 );
 

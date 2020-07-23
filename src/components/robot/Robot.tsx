@@ -21,7 +21,7 @@ const Robot: FC = () => {
         }px) rotate(${rotation}deg)`,
       }}
     >
-      <RobotLogo className={styles.robot} />
+      <RobotLogo className={styles.robot} role="img" aria-label="Toy robot" />
     </div>
   );
 };

@@ -94,6 +94,8 @@ class CommandInput extends Component<{}, State> {
           id="bot-commands"
           onChange={this.handleChange}
           rows={10}
+          placeholder="Commands go here"
+          disabled={currIndex > -1}
         />
 
         <button
