@@ -25,6 +25,8 @@ Each line of the command textarea must be one of the following patterns
 
 These are sample instructions that you can use:
 
+_Corner Teleport_
+
 ```
 place 0,0,south
 report
@@ -37,6 +39,8 @@ report
 
 ```
 
+_Scared Robot_
+
 ```
 place 0,0,south
 right
@@ -56,6 +60,8 @@ report
 
 ```
 
+_Small Square_
+
 ```
 place 0,4,south
 move
@@ -70,6 +76,8 @@ report
 
 ```
 
+_Stairs_
+
 ```
 left
 right
@@ -91,5 +99,22 @@ move
 left
 move
 right
+report
+```
+
+_Shakey Robot_
+
+```
+place 2,2,south
+move
+move
+move
+move
+left
+move
+move
+move
+move
+move
 report
 ```
