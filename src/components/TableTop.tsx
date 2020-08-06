@@ -11,6 +11,8 @@ import CommandInput from './CommandInput';
 import styles from './TableTop.module.scss';
 import { placementRegex } from './constants';
 import TableTopContext, { TableTopContextValue } from './TableTopContext';
+import Coordinate from '../models/Coordinate';
+import Pothole from './Pothole';
 
 const directionRotationMap: Record<Direction, number> = {
   NORTH: 180,
@@ -28,20 +30,33 @@ const TableTop = () => {
   const [rotation, setRotation] = useState(0);
   // Using numeric values here to allow consecutive shakes
   const [restrictedCount, setRestrictedCount] = useState(0);
+  const [potholes, setPotholes] = useState<Array<Coordinate>>([
+    { x: 0, y: 3 },
+    { x: 0, y: 2 },
+  ]);
 
-  const placeRobot = useCallback((command: string) => {
-    const directionMatch = command.match(/(NORTH)|(EAST)|(WEST)|(SOUTH)$/);
-    const positionMatch = command.match(/[0-4],[0-4]/);
+  const placeRobot = useCallback(
+    (command: string) => {
+      const directionMatch = command.match(/(NORTH)|(EAST)|(WEST)|(SOUTH)$/);
+      const positionMatch = command.match(/[0-4],[0-4]/);
 
-    let coordinate: TableTopContextValue['position'] = null;
-    if (directionMatch && positionMatch) {
-      const [x, y] = positionMatch[0].split(',');
-      coordinate = { x: parseInt(x), y: parseInt(y) };
+      let coordinate: TableTopContextValue['position'] = null;
+      if (directionMatch && positionMatch) {
+        const [x, y] = positionMatch[0].split(',');
+        coordinate = { x: parseInt(x), y: parseInt(y) };
 
-      setRotation(directionRotationMap[directionMatch[0] as Direction]);
-      setPosition(coordinate);
-    }
-  }, []);
+        const matched = potholes.some(
+          p => coordinate!.x === p.x && coordinate!.y === p.y
+        );
+
+        if (!matched) {
+          setRotation(directionRotationMap[directionMatch[0] as Direction]);
+          setPosition(coordinate);
+        }
+      }
+    },
+    [potholes]
+  );
 
   const direction = useMemo<Nullable<Direction>>(() => {
     const radians = (rotation * Math.PI) / 180;
@@ -62,6 +77,17 @@ const TableTop = () => {
     }
   }, [rotation]);
 
+  const conditionallyMoveRobot = useCallback(
+    ({ x, y }: Coordinate) => {
+      const matched = potholes.some(p => x === p.x && y === p.y);
+
+      if (!matched) {
+        setPosition({ x, y });
+      }
+    },
+    [potholes]
+  );
+
   const moveRobot = useCallback(() => {
     if (!position || isNull(rotation) || isNull(direction)) {
       return;
@@ -71,25 +97,34 @@ const TableTop = () => {
 
     switch (true) {
       case direction === 'NORTH' && y < 4:
-        setPosition({ x, y: y + 1 });
+        conditionallyMoveRobot({ x, y: y + 1 });
         break;
       case direction === 'EAST' && x < 4:
-        setPosition({ x: x + 1, y });
+        conditionallyMoveRobot({ x: x + 1, y });
         break;
       case direction === 'WEST' && x > 0:
-        setPosition({ x: x - 1, y });
+        conditionallyMoveRobot({ x: x - 1, y });
         break;
       case direction === 'SOUTH' && y > 0:
-        setPosition({ x, y: y - 1 });
+        conditionallyMoveRobot({ x, y: y - 1 });
         break;
       default:
         setRestrictedCount(val => val + 1);
     }
-  }, [direction, position, rotation]);
+  }, [conditionallyMoveRobot, direction, position, rotation]);
+
+  const getRandomNumber = useCallback(() => Math.round(Math.random() * 4), []);
 
   const runCommand = useCallback(
     (command: string) => {
       let reported = false;
+
+      if (potholes.length < 2) {
+        setPotholes([
+          { x: getRandomNumber(), y: getRandomNumber() },
+          { x: getRandomNumber(), y: getRandomNumber() },
+        ]);
+      }
 
       switch (true) {
         case placementRegex.test(command):
@@ -118,7 +153,15 @@ const TableTop = () => {
         setReportVisible(false);
       }
     },
-    [direction, moveRobot, placeRobot, position, rotation]
+    [
+      direction,
+      getRandomNumber,
+      moveRobot,
+      placeRobot,
+      position,
+      potholes.length,
+      rotation,
+    ]
   );
 
   return (
@@ -130,6 +173,10 @@ const TableTop = () => {
           <div className={styles.centerer}>
             <Board />
             <Robot />
+
+            {potholes.map(p => (
+              <Pothole coord={p} key={`${p.x}_${p.y}`} />
+            ))}
 
             {!isNull(rotation) && position && (
               <div
